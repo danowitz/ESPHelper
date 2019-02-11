@@ -766,6 +766,11 @@ void ESPHelper::changeNetwork(){
 void ESPHelper::updateNetwork(){
 	debugPrintln("\tDisconnecting from WiFi");
 	WiFi.disconnect();
+	if(client.connected()){
+		debugPrintln("\tDisconnecting from MQTT");
+		client.disconnect();
+	}
+
 	debugPrintln("\tAttempting to begin on new network");
 
 	//set the wifi mode
