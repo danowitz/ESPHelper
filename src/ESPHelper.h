@@ -38,9 +38,9 @@
 
 // #define VERSION "1-5-6"
 
-// #define DEBUG
+#define DEBUGESPHELPER
 
-#ifdef DEBUG
+#ifdef DEBUGESPHELPER
 	#define debugPrint(x) Serial.print(x) //debug on
 	#define debugPrintln(x) Serial.println(x) //debug on
 #else

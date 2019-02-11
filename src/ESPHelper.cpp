@@ -146,6 +146,15 @@ void ESPHelper::validateConfig(){
 	if(_currentNet.willMessage[0] == '\0'){_willMessageSet = false;}
 	else{_willMessageSet = true;}
 
+	debugPrintln("Init: ");
+	debugPrint(_ssidSet);
+	debugPrint(":");
+	debugPrint(_passSet);
+	debugPrint(":");
+	debugPrint(_currentNet.pass);
+	debugPrint(":");
+	debugPrint(_currentNet.ssid);
+	debugPrint(":");
 }
 
 bool ESPHelper::begin(const char* filename){
@@ -184,14 +193,21 @@ bool ESPHelper::begin(const char *ssid, const char *pass, const char *mqttIP, co
 bool ESPHelper::begin(){
 	if(_ssidSet){
 		// Generate client name based on MAC address and last 8 bits of microsecond counter
-		_clientName += "esp8266-";
+		_clientName = "esp8266-";
 		uint8_t mac[6];
 		WiFi.macAddress(mac);
 		_clientName += macToStr(mac);
 
 		//set the wifi mode to station and begin the wifi (connect using either ssid or ssid/pass)
 		WiFi.mode(WIFI_STA);
-		if(_passSet){WiFi.begin(_currentNet.ssid, _currentNet.pass);}
+		
+		if(_passSet){
+			debugPrintln("Starting WiFi with, ");
+			debugPrint(_currentNet.ssid);
+			debugPrint(_currentNet.pass);
+			debugPrintln("Starting WiFi with, ");
+			WiFi.begin(_currentNet.ssid, _currentNet.pass);
+		}
 		else{WiFi.begin(_currentNet.ssid);}
 
 		//as long as an mqtt ip has been set create an instance of PubSub for client
@@ -587,6 +603,7 @@ void ESPHelper::reconnect() {
 					if (_mqttUserSet && _willMessageSet) {
 						debugPrintln(" - Using user & last will");
 						debugPrintln(String("\t Client Name: " + String(_clientName.c_str())));
+						debugPrintln(String("\t Host IP: " + String(_currentNet.mqttHost)));
 						debugPrintln(String("\t User Name: " + String(_currentNet.mqttUser)));
 						debugPrintln(String("\t Password: " + String(_currentNet.mqttPass)));
 						debugPrintln(String("\t Will Topic: " + String(_currentNet.willTopic)));
@@ -600,6 +617,7 @@ void ESPHelper::reconnect() {
 					else if (!_mqttUserSet && _willMessageSet) {
 						debugPrintln(" - Using last will");
 						debugPrintln(String("\t Client Name: " + String(_clientName.c_str())));
+						debugPrintln(String("\t Host IP: " + String(_currentNet.mqttHost)));
 						debugPrintln(String("\t Will Topic: " + String(_currentNet.willTopic)));
 						debugPrintln(String("\t Will QOS: " + String(_currentNet.willQoS)));
 						debugPrintln(String("\t Will Retain?: " + String(_currentNet.willRetain)));
@@ -608,6 +626,7 @@ void ESPHelper::reconnect() {
 					} else if (_mqttUserSet && !_willMessageSet) {
 						debugPrintln(" - Using user");
 						debugPrintln(String("\t Client Name: " + String(_clientName.c_str())));
+						debugPrintln(String("\t Host IP: " + String(_currentNet.mqttHost)));
 						debugPrintln(String("\t User Name: " + String(_currentNet.mqttUser)));
 						debugPrintln(String("\t Password: " + String(_currentNet.mqttPass)));
 						connected = client.connect((char*) _clientName.c_str(), _currentNet.mqttUser, _currentNet.mqttPass);
@@ -926,7 +945,7 @@ void ESPHelper::listSubscriptions(){
 
 //enable the connection heartbeat on a given pin
 void ESPHelper::enableHeartbeat(int16_t pin){
-	#ifdef DEBUG
+	#ifdef DEBUGESPHELPER
 		if(pin == 1){_heartbeatEnabled = false;}
 		else{
 			_heartbeatEnabled = true;

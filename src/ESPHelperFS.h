@@ -28,9 +28,9 @@ along with ESPHelper.  If not, see <http://www.gnu.org/licenses/>.
 #include <ArduinoJson.h>
 #include "FS.h"
 
-// #define DEBUG
+#define DEBUGESPHELPER
 
-#ifdef DEBUG
+#ifdef DEBUGESPHELPER
   #define FSdebugPrint(x) Serial.print(x) //debug on
   #define FSdebugPrintln(x) Serial.println(x) //debug on
   #define DEBUG_PRINT_SPEED 250

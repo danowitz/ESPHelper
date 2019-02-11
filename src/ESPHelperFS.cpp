@@ -154,7 +154,7 @@ int8_t ESPHelperFS::validateConfig(const char* filename){
     || !json.containsKey("mqttUSER")
     || !json.containsKey("mqttPASS")
     || !json.containsKey("mqttPORT")
-    || !json.containsKey("hostname")
+    || !json.containsKey("hostname") 
     || !json.containsKey("OTA_Password")
     || !json.containsKey("willTopic")
     || !json.containsKey("willMessage")
