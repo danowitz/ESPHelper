@@ -99,6 +99,7 @@ public:
 	void setMQTTCallback(MQTT_CALLBACK_SIGNATURE);
 
 	void setWifiCallback(void (*callback)());
+	void setMQTTConnectCallback(void (*callback)());
 
 	void reconnect();
 
@@ -186,6 +187,8 @@ private:
 	#endif
 	bool _mqttCallbackSet = false;
 
+	void (*_mqttConnectCallback)();
+	bool _mqttConnectCallbackSet = false;
 	int _connectionStatus = NO_CONNECTION;
 
 	//AP mode variables

@@ -556,6 +556,14 @@ void ESPHelper::setWifiCallback(void (*callback)()){
 	_wifiCallbackSet = true;
 }
 
+//sets a custom function to run when connection to MQTT is established
+void ESPHelper::setMQTTConnectCallback(void (*callback)()){
+	_mqttConnectCallback = callback;
+	_mqttConnectCallbackSet = true;
+}
+
+
+
 //attempts to connect to wifi & mqtt server if not connected
 void ESPHelper::reconnect() {
 	static int tryCount = 0;
@@ -650,7 +658,15 @@ void ESPHelper::reconnect() {
 							}
 						}
 
-						_connectionStatus = FULL_CONNECTION;
+						//if the MQTT previously wasnt connected but now is, run the callback
+						if(_connectionStatus < FULL_CONNECTION && _mqttConnectCallbackSet){
+							_connectionStatus = FULL_CONNECTION;
+							_mqttConnectCallback();
+						} else {
+							_connectionStatus = FULL_CONNECTION;
+						}
+
+						
 						resubscribe();
 						timeout = 0;
 					}
