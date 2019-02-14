@@ -32,7 +32,7 @@
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
 #include "sharedData.h"
-
+#include <functional>
 
 #include "Metro.h"
 
@@ -49,7 +49,7 @@
 #endif
 
 
-
+#define VOID_CALLBACK_SIGNATURE std::function<void()> callback
 
 class ESPHelper{
 
@@ -100,6 +100,7 @@ public:
 
 	void setWifiCallback(void (*callback)());
 	void setMQTTConnectCallback(void (*callback)());
+	void setMQTTDisconnectCallback(void (*callback)());
 
 	void reconnect();
 
@@ -187,8 +188,13 @@ private:
 	#endif
 	bool _mqttCallbackSet = false;
 
+
 	void (*_mqttConnectCallback)();
 	bool _mqttConnectCallbackSet = false;
+
+	void (*_mqttDisconnectCallback)();
+	bool _mqttDisconnectCallbackSet = false;
+
 	int _connectionStatus = NO_CONNECTION;
 
 	//AP mode variables

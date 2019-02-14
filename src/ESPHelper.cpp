@@ -562,6 +562,11 @@ void ESPHelper::setMQTTConnectCallback(void (*callback)()){
 	_mqttConnectCallbackSet = true;
 }
 
+//sets a custom function to run when connection to MQTT is lost
+void ESPHelper::setMQTTDisconnectCallback(void (*callback)()){
+	_mqttDisconnectCallback = callback;
+	_mqttDisconnectCallbackSet = true;
+}
 
 
 //attempts to connect to wifi & mqtt server if not connected
@@ -722,6 +727,11 @@ int ESPHelper::setConnectionStatus(){
 
 	else{
 		returnVal = BROADCAST;
+	}
+
+	// if we lost the connection to the MQTT broker, call the callback.
+	if(_connectionStatus == FULL_CONNECTION && returnVal != FULL_CONNECTION && _mqttDisconnectCallbackSet) {
+		_mqttDisconnectCallback();
 	}
 
 	//set the connection status and return
