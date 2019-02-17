@@ -548,7 +548,10 @@ bool ESPHelper::setCallback(MQTT_CALLBACK_SIGNATURE){
 }
 
 
-
+void ESPHelper::setWillTopicCallback(String (*callback)()){
+	_willTopicCallback = callback;
+	_willTopicCallbackSet = true;
+}
 
 //sets a custom function to run when connection to wifi is established
 void ESPHelper::setWifiCallback(void (*callback)()){
@@ -609,7 +612,11 @@ void ESPHelper::reconnect() {
 				if (!client.connected() && timeout < 5) {
 					debugPrint("Attemping MQTT connection");
 
-
+					// call out to get the will topic.
+					if(_willTopicCallbackSet) {
+						_willTopic = _willTopicCallback();
+						_currentNet.willTopic = (char*)_willTopic.c_str();
+					}
 					int connected = 0;
 
 					//connect to mqtt with user/pass

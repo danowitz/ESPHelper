@@ -101,6 +101,7 @@ public:
 	void setWifiCallback(void (*callback)());
 	void setMQTTConnectCallback(void (*callback)());
 	void setMQTTDisconnectCallback(void (*callback)());
+	void setWillTopicCallback(String (*callback)());
 
 	void reconnect();
 
@@ -194,6 +195,11 @@ private:
 
 	void (*_mqttDisconnectCallback)();
 	bool _mqttDisconnectCallbackSet = false;
+
+	String (*_willTopicCallback)();
+	bool _willTopicCallbackSet = false;
+	String _willTopic;
+	
 
 	int _connectionStatus = NO_CONNECTION;
 
