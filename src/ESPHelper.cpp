@@ -1014,22 +1014,22 @@ void ESPHelper::heartbeat(){
 	if(heartbeatMetro.check() && _heartbeatEnabled){
 		if(counter == 1){
 			digitalWrite(_ledPin, ledState);
-			heartbeatMetro.interval(10);
+			heartbeatMetro.interval(50);
 			ledState = !ledState;
 		}
 		else if(counter == 2){
 			digitalWrite(_ledPin, ledState);
-			heartbeatMetro.interval(300);
+			heartbeatMetro.interval(400);
 			ledState = !ledState;
 		}
 		else if(counter == 3){
 			digitalWrite(_ledPin, ledState);
-			heartbeatMetro.interval(10);
+			heartbeatMetro.interval(50);
 			ledState = !ledState;
 		}
 		else{
 			digitalWrite(_ledPin, ledState);
-			heartbeatMetro.interval(1000);
+			heartbeatMetro.interval(1100);
 			ledState = !ledState;
 			counter = 0;
 		}
