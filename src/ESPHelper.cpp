@@ -248,13 +248,12 @@ bool ESPHelper::begin(){
 		ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {/* ota progress code */});
 		ArduinoOTA.onError([](ota_error_t error) {/* ota error code */});
 
-		//initially attempt to connect to wifi when we begin (but only block for 5 seconds before timing out)
+		//initially attempt to connect to wifi when we begin (but only block for 2 seconds before timing out)
 		int timeout = 0;	//counter for begin connection attempts
-		while (((!client.connected() && _mqttSet) || WiFi.status() != WL_CONNECTED) && timeout < 500 ) {	//max 2 sec before timeout
+		while (((!client.connected() && _mqttSet) || WiFi.status() != WL_CONNECTED) && timeout < 200 ) {	//max 2 sec before timeout
 			reconnect();
 			delay(10);
 			timeout++;
-			ESP.wdtFeed();
 		}
 
 		//attempt to start ota if needed
@@ -609,8 +608,8 @@ void ESPHelper::reconnect() {
 			//attempt to connect to mqtt when we finally get connected to WiFi
 			if(_mqttSet){
 
-				static int timeout = 0;	//allow a max of 10 mqtt connection attempts before timing out
-				if (!client.connected() && timeout < 10) {
+				static int timeout = 0;	//allow a max of 5 mqtt connection attempts before timing out
+				if (!client.connected() && timeout < 5) {
 					debugPrint("Attemping MQTT connection");
 
 					// call out to get the will topic.
@@ -690,8 +689,8 @@ void ESPHelper::reconnect() {
 
 				}
 
-				//if we still cant connect to mqtt after 10 attempts increment the try count
-				if(timeout >= 10 && !client.connected()){
+				//if we still cant connect to mqtt after 5 attempts increment the try count
+				if(timeout >= 5 && !client.connected()){
 					timeout = 0;
 					tryCount++;
 					if(tryCount == 20){
