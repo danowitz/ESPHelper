@@ -203,9 +203,8 @@ bool ESPHelper::begin(){
 		
 		if(_passSet){
 			debugPrintln("Starting WiFi with, ");
-			debugPrint(_currentNet.ssid);
-			debugPrint(_currentNet.pass);
-			debugPrintln("Starting WiFi with, ");
+			debugPrintln(_currentNet.ssid);
+			debugPrintln(_currentNet.pass);
 			WiFi.begin(_currentNet.ssid, _currentNet.pass);
 		}
 		else{WiFi.begin(_currentNet.ssid);}
@@ -595,6 +594,7 @@ void ESPHelper::reconnect() {
 		// make sure we are connected to WIFI before attemping to reconnect to MQTT
 		//----note---- maybe want to reset tryCount whenever we succeed at getting wifi connection?
 		if(WiFi.status() == WL_CONNECTED){
+			tryCount = 0;
 			//if the wifi previously wasnt connected but now is, run the callback
 			if(_connectionStatus < WIFI_ONLY && _wifiCallbackSet){
 				_wifiCallback();
