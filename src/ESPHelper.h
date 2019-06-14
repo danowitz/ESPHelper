@@ -77,6 +77,7 @@ public:
 	bool begin();
 	void end();
 
+	
 	netInfo loadConfigFile(const char* filename);
 	bool saveConfigFile(const netInfo config, const char* filename);
 
@@ -166,10 +167,9 @@ private:
 
 	netInfo _currentNet;
 
-	PubSubClient client;
-
 	Metro reconnectMetro = Metro(500);
 
+	PubSubClient client;
 	WiFiClient wifiClient;
 	WiFiClientSecure wifiClientSecure;
 	const char* _fingerprint;
