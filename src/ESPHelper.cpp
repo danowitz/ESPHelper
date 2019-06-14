@@ -203,9 +203,8 @@ bool ESPHelper::begin(){
 		
 		if(_passSet){
 			debugPrintln("Starting WiFi with, ");
-			debugPrint(_currentNet.ssid);
-			debugPrint(_currentNet.pass);
-			debugPrintln("Starting WiFi with, ");
+			debugPrintln(_currentNet.ssid);
+			debugPrintln(_currentNet.pass);
 			WiFi.begin(_currentNet.ssid, _currentNet.pass);
 		}
 		else{WiFi.begin(_currentNet.ssid);}
@@ -595,6 +594,7 @@ void ESPHelper::reconnect() {
 		// make sure we are connected to WIFI before attemping to reconnect to MQTT
 		//----note---- maybe want to reset tryCount whenever we succeed at getting wifi connection?
 		if(WiFi.status() == WL_CONNECTED){
+			tryCount = 0;
 			//if the wifi previously wasnt connected but now is, run the callback
 			if(_connectionStatus < WIFI_ONLY && _wifiCallbackSet){
 				_wifiCallback();
@@ -689,7 +689,7 @@ void ESPHelper::reconnect() {
 
 				}
 
-				//if we still cant connect to mqtt after 10 attempts increment the try count
+				//if we still cant connect to mqtt after 5 attempts increment the try count
 				if(timeout >= 5 && !client.connected()){
 					timeout = 0;
 					tryCount++;
@@ -727,6 +727,9 @@ int ESPHelper::setConnectionStatus(){
 			//if mqtt is connected as well then set the status to full connection
 			if(client.connected()){
 				returnVal = FULL_CONNECTION;
+				if(_connectionStatus < FULL_CONNECTION && _mqttConnectCallbackSet) {
+					_mqttConnectCallback();
+				}
 			}
 		}
 	}
@@ -1014,22 +1017,22 @@ void ESPHelper::heartbeat(){
 	if(heartbeatMetro.check() && _heartbeatEnabled){
 		if(counter == 1){
 			digitalWrite(_ledPin, ledState);
-			heartbeatMetro.interval(10);
+			heartbeatMetro.interval(50);
 			ledState = !ledState;
 		}
 		else if(counter == 2){
 			digitalWrite(_ledPin, ledState);
-			heartbeatMetro.interval(300);
+			heartbeatMetro.interval(400);
 			ledState = !ledState;
 		}
 		else if(counter == 3){
 			digitalWrite(_ledPin, ledState);
-			heartbeatMetro.interval(10);
+			heartbeatMetro.interval(50);
 			ledState = !ledState;
 		}
 		else{
 			digitalWrite(_ledPin, ledState);
-			heartbeatMetro.interval(1000);
+			heartbeatMetro.interval(1100);
 			ledState = !ledState;
 			counter = 0;
 		}
