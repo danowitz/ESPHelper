@@ -574,7 +574,6 @@ void ESPHelper::setMQTTDisconnectCallback(void (*callback)()){
 //attempts to connect to wifi & mqtt server if not connected
 void ESPHelper::reconnect() {
 	static int tryCount = 0;
-
 	if(reconnectMetro.check() && _connectionStatus != BROADCAST && setConnectionStatus() != FULL_CONNECTION){
 		debugPrintln("Attempting WiFi Connection...");
 		//attempt to connect to the wifi if connection is lost
@@ -594,7 +593,6 @@ void ESPHelper::reconnect() {
 		// make sure we are connected to WIFI before attemping to reconnect to MQTT
 		//----note---- maybe want to reset tryCount whenever we succeed at getting wifi connection?
 		if(WiFi.status() == WL_CONNECTED){
-			tryCount = 0;
 			//if the wifi previously wasnt connected but now is, run the callback
 			if(_connectionStatus < WIFI_ONLY && _wifiCallbackSet){
 				_wifiCallback();
@@ -615,12 +613,16 @@ void ESPHelper::reconnect() {
 					// call out to get the will topic.
 					if(_willTopicCallbackSet) {
 						_willTopic = _willTopicCallback();
-						_currentNet.willTopic = (char*)_willTopic.c_str();
+						if(_willTopic != "") {
+							_currentNet.willTopic = (char*)_willTopic.c_str();
+						}
 					}
+
+					
 					int connected = 0;
 
 					//connect to mqtt with user/pass
-					if (_mqttUserSet && _willMessageSet) {
+					if (_mqttUserSet && _willTopic != "") {
 						debugPrintln(" - Using user & last will");
 						debugPrintln(String("\t Client Name: " + String(_clientName.c_str())));
 						debugPrintln(String("\t Host IP: " + String(_currentNet.mqttHost)));
@@ -632,9 +634,8 @@ void ESPHelper::reconnect() {
 						debugPrintln(String("\t Will Message: " + String(_currentNet.willMessage)));
 						connected = client.connect((char*) _clientName.c_str(), _currentNet.mqttUser, _currentNet.mqttPass, _currentNet.willTopic, (int) _currentNet.willQoS, _currentNet.willRetain, (char*) _currentNet.willMessage);
 					}
-
 					//connect to mqtt without credentials
-					else if (!_mqttUserSet && _willMessageSet) {
+					else if (!_mqttUserSet && _willTopic != "") {
 						debugPrintln(" - Using last will");
 						debugPrintln(String("\t Client Name: " + String(_clientName.c_str())));
 						debugPrintln(String("\t Host IP: " + String(_currentNet.mqttHost)));
@@ -643,18 +644,10 @@ void ESPHelper::reconnect() {
 						debugPrintln(String("\t Will Retain?: " + String(_currentNet.willRetain)));
 						debugPrintln(String("\t Will Message: " + String(_currentNet.willMessage)));
 						connected = client.connect((char*) _clientName.c_str(), _currentNet.willTopic, (int) _currentNet.willQoS, _currentNet.willRetain, (char*) _currentNet.willMessage);
-					} else if (_mqttUserSet && !_willMessageSet) {
-						debugPrintln(" - Using user");
-						debugPrintln(String("\t Client Name: " + String(_clientName.c_str())));
-						debugPrintln(String("\t Host IP: " + String(_currentNet.mqttHost)));
-						debugPrintln(String("\t User Name: " + String(_currentNet.mqttUser)));
-						debugPrintln(String("\t Password: " + String(_currentNet.mqttPass)));
-						connected = client.connect((char*) _clientName.c_str(), _currentNet.mqttUser, _currentNet.mqttPass);
 					} else {
-						debugPrintln(" - Using default");
-						debugPrintln(String("\t Client Name: " + String(_clientName.c_str())));
-						connected = client.connect((char*) _clientName.c_str());
+						debugPrintln(" - last will is not configured yet. Waiting on mDNS data.");
 					}
+
 
 					//if connected, subscribe to the topic(s) we want to be notified about
 					if (connected) {
@@ -685,6 +678,7 @@ void ESPHelper::reconnect() {
 					else{
 						debugPrintln(" -- Failed");
 					}
+
 					timeout++;
 
 				}
